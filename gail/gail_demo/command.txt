@@ -1,0 +1,72 @@
+python train_imitation.py --cuda --env_id sconewalk_origin_motored_hamstring_h0914-v3 --buffer buffers/sconewalk_origin_motored_normal_h0914-v3/normal101_size1000000_std0.0_prand1.0.pth --num_steps 10000 --eval_interval 500 --rollout_length 200
+
+python train_imitation.py --cuda --env_id sconewalk_origin_motored_hamstring_h0914-v3 --buffer buffers/sconewalk_origin_motored_normal_h0914-v3/dof_size1000000_std0.0_prand1.0.pth --num_steps 10000 --eval_interval 500 --rollout_length 20000
+
+python train_imitation.py --env_id sconewalk_origin_motored_hamstring_h0914-v3 --buffer buffers/sconewalk_origin_motored_normal_h0914-v3/normal101_size1000000_std0.0_prand1.0.pth --num_steps 100000000 --eval_interval 5000000 --rollout_length 100000 --cuda
+
+python train_imitation.py --env_id sconewalk_origin_motored_hamstring_h0914-v3 --expert_env_id sconewalk_origin_motored_normal_h0914-v3 --buffer buffers/sconewalk_origin_motored_normal_h0914-v3/dof_size1000000_std0.0_prand1.0.pth --num_steps 100000000 --eval_interval 5000000 --rollout_length 100000 --cuda
+
+python train_imitation.py --env_id sconewalk_origin_motored_shorthamstring_h0914-v3 --expert_env_id sconewalk_origin_motored_normal_h0914-v3 --buffer buffers/sconewalk_origin_motored_normal_h0914-v3/muscle_force/Adjusted_muscle_force_SameInit_dof_size1000000_for_shorthamstring_new_freq1.11.pth --num_steps 100000000 --eval_interval 5000000 --rollout_length 100000 --cuda
+
+-------------------------------------------------------------------------
+Same70Init:
+
+Frequency, based on ground touching forces left, right (Fourier analysis):
+With 60s periods:
+1. H0914 normal walking: 1.27Hz 1.27Hz (1.277Hz)
+2. H0914 short hamstring: 1.155Hz 1.155Hz (1.154Hz)
+3. H0914 plantar weakness: 1.254Hz 1.254Hz (1.25Hz)
+4. H0914 hyper reflexia: 1.25Hz 1.25Hz (1.25Hz)
+
+USE THIS:
+With 10s periods:
+1. H0914 normal walking: (1.25Hz)
+2. H0914 short hamstring:  (1.11Hz)
+3. H0914 plantar weakness: (1.25Hz)
+4. H0914 hyper reflexia: (1.25Hz)
+5. H0914 hamstring weakness:  (1.429Hz)
+5. H0914 iliopasoas weakness:  (1.11Hz)
+5. H0914 tibant weakness:  (1.25Hz)
+
+--------------------------------------------
+New 10s period initstates:
+1. H0914 normal walking: (1.25Hz)
+2. H0914 short hamstring:  (1.25Hz)
+
+5. H0914 hamstring weakness:  (1.429Hz)
+
+
+RuntimeError: Error computing fa for hamstrings_r; excitation=nan
+
+Personal PC
+================ LICENSE BEGIN ================
+Zongwei Zhang (zhang@ias.informatik.tu-darmstadt.de)
+TU Darmstadt LokoAssist
+Academic Lab License (expires 2025-12-31)
+74180be8992963a1acee88bfb27222104166301251995f3
+6ad44111b2ecc9c04b24393a32f8bae413c85bc9d629bd2
+================= LICENSE END =================
+
+cluster odd
+================ LICENSE BEGIN ================
+Zongwei Zhang (zhang@ias.informatik.tu-darmstadt.de)
+TU Darmstadt LokoAssist
+Academic Lab License (expires 2025-12-31)
+d9fbc0c5f06a92e41047ec1b202612cc515adc527db5fbc
+255b40b0be1dc588db3ab19e2606d8d0ba8d5fe86345bd0
+================= LICENSE END =================
+
+cluster even
+================ LICENSE BEGIN ================
+Zongwei Zhang (zhang@ias.informatik.tu-darmstadt.de)
+TU Darmstadt LoKoAssist
+Academic Lab License (expires 2025-12-31)
+f93c9bb407bc76cf81f231d7e0da2adc51d67db01ef070c
+04d809a633807c5e7c57c68f8cbdd3bea9bd8b9151a9037
+================= LICENSE END =================
+
+
+Wandb api key: 32902565b65f6b48964a70f3e7aceeb496aa1fb6
+
+
+python gail/train_imitation.py --num_steps 60000000 --eval_interval 5000000 --rollout_length 100000 --cuda
