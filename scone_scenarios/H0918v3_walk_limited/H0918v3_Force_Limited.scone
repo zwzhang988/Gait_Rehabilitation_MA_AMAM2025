@@ -1,0 +1,35 @@
+# This is the trainig file used for Scone, no contribute here
+
+CmaOptimizer {
+	signature_prefix = DATE_TIME
+	min_progress = 1e-4
+	
+	SimulationObjective {
+		max_duration = 20
+		
+		# Model used in simulation
+		ModelHyfydy{
+			model_file = Hy0918v3_motored_limited.hfd
+			
+			# Optimize initial state parameters
+			state_init_file = ../Tutorials/init/InitStateH0918Gait10ActA.zml
+			initial_state_offset = 0~0.01<-0.5,0.5>
+			initial_state_offset_exclude = "*_tx;*_ty;*_u"
+			initial_load = 1
+			fixed_control_step_size = 0.005
+			use_opensim_activation_dynamics = 1
+			zero_velocity_equilibration = 1
+		}
+		
+		# Controller for gait
+		<< ../Tutorials/controllers/H0918RS2v3.scone >>
+		
+		# Measure for gait
+		CompositeMeasure {
+			<< ../Tutorials/measures/Gait10.scone >>
+			<< ../Tutorials/measures/EffortWangCubed2000.scone >>
+			<< ../Tutorials/measures/DofKnee1.scone >>
+			<< ../Tutorials/measures/Grf14.scone >>
+		}
+	}
+}

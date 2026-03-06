@@ -1,0 +1,156 @@
+# Gait controller adapted from [Geyer & Herr 2010] by Thomas Geijtenbeek 
+# Version history
+# 9: Updated initial values to better fit H0914 model
+# 8: Moved 'symmetric' property to GaitStateController
+# 7: Changed C0 ranges to <-10,10>; fixes issue for negative C0 on glut_max during Liftoff
+# 6: Fixed sign on glut_max during LiftOff
+GaitStateController {
+	signature_postfix = "GH2010"
+	auto_std_factor = 0.05
+	stance_load_threshold = 0.17796368 # was 0.1
+	leg_load_sensor_delay = 0
+	symmetric = 1
+	ConditionalControllers {
+		# TA stretch reflexes [Geyer & Herr 2010]
+		ConditionalController {
+			states = "EarlyStance LateStance Liftoff Swing Landing"
+			ReflexController {
+				MuscleReflex {
+					target = tib_ant
+					delay = 0.020
+					KL = 0.97519568 # 1.1 in paper
+					L0 = 0.63495079 # 0.71 in paper
+				}
+				MuscleReflex {
+					target = tib_ant
+					source = soleus
+					delay = 0.020
+					KF = -0.28255319 # -0.3 in paper
+				}
+			}
+		}
+		
+		# GAS and SOL F+ reflexes [Geyer & Herr 2010]
+		ConditionalController {
+			states = "EarlyStance LateStance Liftoff"
+			ReflexController {
+				MuscleReflex {
+					target = soleus
+					delay = 0.020
+					KF = 1.0727222 # 1.2 in paper
+				}
+				MuscleReflex {
+					target = gastroc
+					delay = 0.020
+					KF = 1.3350228 # 1.1 in paper
+				}
+			}
+		}
+		
+		# Stance reflexes
+		ConditionalController {
+			states = "EarlyStance LateStance"
+			ReflexController {
+				Reflexes {
+					# F+ VAS
+					ConditionalMuscleReflex {
+						target = vasti
+						delay = 0.010
+						KF = 1.5309874 # G_VAS
+						C0 = 0.12030454 # S_0,VAS; 0.09 in paper
+						dof = knee_angle
+						pos_max = -0.21514993
+					}
+					# Root stability
+					DofReflex {
+						target = hamstrings
+						source = pelvis_tilt
+						delay = 0.005
+						KP = 1.5548866 # k_p; 1.91 in paper
+						KV = 0.29926713 # k_d; 0.25 in paper
+						P0 = -0.105 # theta_ref, not optimized because of C0
+						C0 = 0.01782196 # S_0,BAL; 0.05 in paper
+					}
+					DofReflex {
+						target = glut_max
+						source = pelvis_tilt
+						delay = 0.005
+						KP = 1.9220064 # k_p; 1.91 in paper
+						KV = 0.13535358 # k_d; 0.25 in paper
+						P0 = -0.105 # theta_ref, not optimized because of C0
+						C0 = -0.05106659 # S_0,BAL; 0.05 in paper
+					}
+					DofReflex {
+						target = iliopsoas
+						source = pelvis_tilt
+						delay = 0.005
+						KP = -1.9148943 # -k_p; -1.91 in paper
+						KV = -0.57513654 # -k_d; -0.25 in paper
+						P0 = -0.105 # theta_ref, not optimized because of C0
+						C0 = 0.10973563 # S_0,BAL; 0.05 in paper
+					}
+				}
+			}
+		}
+		
+		# Double support reflexes
+		ConditionalController {
+			states = "Liftoff"
+			ReflexController {
+				MuscleReflex {
+					target = iliopsoas
+					delay = 0.005
+					C0 = 0.34121064 # DELTA_S; 0.25 in paper
+				}
+				MuscleReflex {
+					target = glut_max
+					delay = 0.005
+					C0 = -0.52926142 # DELTA_S; -0.25 in paper
+				}
+			}
+		}
+		
+		# Swing reflexes
+		ConditionalController {
+			states = "Swing Landing"
+			ReflexController {
+				# HFL excitation [Geyer & Herr 2010]
+				MuscleReflex {
+					target = iliopsoas
+					delay = 0.005
+					KL = 0.54556527 # G_HFL; 0.35 in paper
+					L0 = 0.29656967 # l_off_HFL
+					allow_neg_L = 0
+				}
+				DofReflex {
+					target = iliopsoas
+					source = pelvis_tilt
+					delay = 0.005
+					KP = 1.1856184 # k_lean; 1.15 in paper
+					#KV = ~0.1<-10,10> # not in [GH2010]; 0.25 in paper
+					P0 = 0.016819147 # theta_ref; -0.105 in paper
+				}
+				# late-swing HFL inhibition [Geyer & Herr 2010]
+				MuscleReflex {
+					target = iliopsoas
+					source = hamstrings
+					delay = 0.005
+					KL = -4.4893307# -4 in paper
+					L0 = 0.92862364 # 0.85 in paper
+					allow_neg_L = 0
+				}
+				# late-swing HAM and GLU reflexes [Geyer & Herr 2010]
+				MuscleReflex {
+					target = hamstrings
+					delay = 0.005
+					KF = 0.32711246 # 0.65 in paper
+				}
+				MuscleReflex {
+					target = glut_max
+					delay = 0.005
+					KF = 0.34743126 # 0.4 in paper
+				}
+			}
+		}
+	}
+}

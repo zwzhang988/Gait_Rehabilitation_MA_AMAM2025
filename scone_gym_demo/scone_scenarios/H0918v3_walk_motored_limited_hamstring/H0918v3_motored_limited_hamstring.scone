@@ -1,0 +1,34 @@
+# This is the trainig file used for Scone, no contribute here
+
+
+		# Model used in simulation
+		ModelHyfydy{
+			model_file = Hy0918v3_motored_limited.hfd
+			
+			Properties {
+				hamstrings_l { optimal_fiber_length.factor = 0.85 }
+				hamstrings_r { optimal_fiber_length.factor = 0.85 }
+			}
+			
+			# Optimize initial state parameters
+			state_init_file = InitStateH0918Gait10ActA_limited_hamstring_optim.zml
+			#initial_state_offset = 0~0.01<-0.5,0.5>
+			#initial_state_offset_exclude = "*_tx;*_ty;*_u"
+			initial_load = 1
+			fixed_control_step_size = 0.005
+			use_opensim_activation_dynamics = 1
+			zero_velocity_equilibration = 1
+		
+		
+		# Controller for gait
+		<< H0918RS2v3_limited_hamstring_optim.scone >>
+		
+		# Measure for gait
+		CompositeMeasure {
+		<< ../measurements/Gait10.scone >>
+		<< ../measurements/EffortWangCubed2000.scone >>
+		<< ../measurements/DofKnee1.scone >>
+		<< ../measurements/Grf14.scone >>
+	}
+	}
+

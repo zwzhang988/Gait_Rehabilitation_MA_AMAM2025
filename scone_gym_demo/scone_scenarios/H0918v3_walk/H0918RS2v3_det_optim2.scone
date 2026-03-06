@@ -1,0 +1,171 @@
+# Two-state Gait controller with optimized deterministic parameters
+
+$hip_delay = 0.01
+$ham_delay = 0.015
+$knee_delay = 0.02
+$ankle_delay = 0.035
+$ves_delay = 0.05
+
+GaitStateController {
+	signature_postfix = "RS2"
+	auto_std_factor = 0.02
+	stance_load_threshold = 0.29890606
+	#swing_load_threshold = 0.05
+	leg_load_sensor_delay = 0
+	symmetric = 1
+	ConditionalControllers {
+		ConditionalController {
+			states = "EarlyStance LateStance Liftoff Swing Landing"
+			ReflexController {
+				MuscleReflex { target = tib_ant	 KL = 0.6332627 L0 = 0.54590102 KF = 0.54791043 delay = $ankle_delay }
+				MuscleReflex { target = soleus	KL = 0.68361804 L0 = 0.85171481 KF = 0.91040832 delay = $ankle_delay }
+				MuscleReflex { target = gastroc	 KL = 0.55439582 L0 = 0.68898282 KF = 0.68988956 delay = $ankle_delay }
+				MuscleReflex { target = tib_ant	 source = soleus KL = -0.14082912 KF = -1.012355 delay = $ankle_delay }
+				MuscleReflex { target = tib_ant	 source = gastroc KL = -0.048816102 KF = -0.64038668 delay = $ankle_delay }
+				MuscleReflex { target = soleus	source = tib_ant KF = -0.64769263 delay = $ankle_delay }
+				MuscleReflex { target = gastroc	 source = tib_ant KF = -0.77436714 delay = $ankle_delay }
+			}
+		}
+		
+		# Stance reflexes
+		ConditionalController {
+			states = "EarlyStance LateStance"
+			ReflexController {
+				MuscleReflex {
+					target = vasti
+					delay = $knee_delay
+					KF = 0.77215352
+					KL = 2.0200339
+					L0 = 0.61863215
+				}
+				MuscleReflex {
+					target = iliopsoas
+					delay = $hip_delay
+					KL = 2.0561249
+					L0 = 0.89260573
+				}
+				MuscleReflex {
+					target = rect_fem
+					delay = $ham_delay
+					KL = 0.1539383
+					L0 = 0.44645473
+				}
+				MuscleReflex {
+					target = hamstrings
+					delay = $ham_delay
+					KL = 0.80875851
+					L0 = 0.75342504
+				}
+				MuscleReflex {
+					target = bifemsh
+					delay = $knee_delay
+					#KL = 1.6
+					#L0 = 1.9
+					KF = 0.20490607
+				}
+				MuscleReflex {
+					target = glut_max
+					delay = $hip_delay
+					KL = 0.40732086
+					L0 = 1.1225569
+				}
+				
+				# Root stability
+				DofReflex {
+					target = hamstrings
+					source = pelvis_tilt
+					delay = $ves_delay 
+					KP = 1.308493
+					KV = 0.23711043
+					P0 = -0.105 # theta_ref, not optimized
+				}
+				DofReflex {
+					target = glut_max
+					source = pelvis_tilt
+					delay = $ves_delay 
+					KP = 1.15937
+					#KV = 0.1
+					P0 = -0.105 # theta_ref, not optimized
+				}
+				#DofReflex {
+				#	target = iliopsoas
+				#	source = pelvis_tilt
+				#	delay = $ves_delay 
+				#	KP = -0.09
+				#	#KV = -0.05
+				#	P0 = -0.105 # theta_ref, not optimized
+				#}
+				DofReflex {
+					target = rect_fem
+					source = pelvis_tilt
+					delay = $ves_delay 
+					KP = -1.0773538
+					KV = 0.0096397039
+					P0 = -0.105 # theta_ref, not optimized
+				}
+			}
+		}
+		
+		
+		# Swing reflexes
+		ConditionalController {
+			states = "Liftoff Swing Landing"
+			ReflexController {
+				# hip flexors
+				MuscleReflex {
+					target = iliopsoas
+					delay = $hip_delay
+					KL = 0.77668304
+					L0 = 0.79268374
+				}
+				MuscleReflex {
+					target = rect_fem
+					delay = $ham_delay
+					KL = 0.51157774
+					L0 = 1.2277339
+				}
+				
+				# balance
+				DofReflex {
+					target = iliopsoas
+					source = pelvis_tilt
+					delay = $ves_delay 
+					KP = 1.8390878
+					KV = 0.37774667
+					P0 = -0.105 # theta_ref, not optimized
+				}
+				
+				# antagonists
+				MuscleReflex {
+					target = iliopsoas
+					source = hamstrings
+					delay = $ham_delay
+					KL = -3.0775595
+					L0 = 0.72606137
+				}
+				
+				# posterior muscles
+				MuscleReflex {
+					target = hamstrings
+					delay = $ham_delay
+					KL = 0.19808956
+					L0 = 1.0395217
+				}
+				MuscleReflex {
+					target = bifemsh
+					delay = $knee_delay
+					#KL = 0.66
+					#L0 = 1.6
+					KF = 0.22044359
+				}
+				MuscleReflex {
+					target = glut_max
+					delay = $hip_delay
+					KL = 1.0586046
+					L0 = 0.86912752
+					#KF = 0.4 # 0.4 in paper
+				}
+			}
+		}
+	}
+}

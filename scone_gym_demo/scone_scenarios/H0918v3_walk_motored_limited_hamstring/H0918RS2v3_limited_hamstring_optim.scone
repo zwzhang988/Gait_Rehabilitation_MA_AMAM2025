@@ -1,0 +1,171 @@
+# Two-state Gait controller
+
+$hip_delay = 0.01
+$ham_delay = 0.015
+$knee_delay = 0.02
+$ankle_delay = 0.035
+$ves_delay = 0.05
+
+GaitStateController {
+	signature_postfix = "RS2"
+	auto_std_factor = 0.02
+	stance_load_threshold = 0.16898832
+	#swing_load_threshold = ~0.05<0.001,1>
+	leg_load_sensor_delay = 0
+	symmetric = 1
+	ConditionalControllers {
+		ConditionalController {
+			states = "EarlyStance LateStance Liftoff Swing Landing"
+			ReflexController {
+				MuscleReflex { target = tib_ant	KL = 0.71372512 L0 = 0.63580711 KF = 0.38458919 delay = $ankle_delay }
+				MuscleReflex { target = soleus	KL = 0.66556679 L0 = 0.910572 KF = 1.4665562 delay = $ankle_delay }
+				MuscleReflex { target = gastroc	KL = 0.55212568 L0 = 0.74887 KF = 0.7838454 delay = $ankle_delay }
+				MuscleReflex { target = tib_ant	source = soleus KL = -0.083320205 KF = -0.64649546 delay = $ankle_delay }
+				MuscleReflex { target = tib_ant	source = gastroc KL = -0.16643263 KF = -0.70448831 delay = $ankle_delay }
+				MuscleReflex { target = soleus	source = tib_ant KF = -0.7554825 delay = $ankle_delay }
+				MuscleReflex { target = gastroc	source = tib_ant KF = -0.84035064 delay = $ankle_delay }
+			}
+		}
+		
+		# Stance reflexes
+		ConditionalController {
+			states = "EarlyStance LateStance"
+			ReflexController {
+				MuscleReflex {
+					target = vasti
+					delay = $knee_delay
+					KF = 0.79255735	
+					KL = 2.0375736
+					L0 = 0.62408783
+				}
+				MuscleReflex {
+					target = iliopsoas
+					delay = $hip_delay
+					KL = 2.864913
+					L0 = 0.91982453
+				}
+				MuscleReflex {
+					target = rect_fem
+					delay = $ham_delay
+					KL = 0.29170857
+					L0 = 0.46677467
+				}
+				MuscleReflex {
+					target = hamstrings
+					delay = $ham_delay
+					KL = 0.81391831
+					L0 = 0.68910485
+				}
+				MuscleReflex {
+					target = bifemsh
+					delay = $knee_delay
+					#KL = ~1.6<0,4>
+					#L0 = ~1.9<0,2>
+					KF = 0.25901914
+				}
+				MuscleReflex {
+					target = glut_max
+					delay = $hip_delay
+					KL = 0.37825284
+					L0 = 1.20722
+				}
+				
+				# Root stability
+				DofReflex {
+					target = hamstrings
+					source = pelvis_tilt
+					delay = $ves_delay 
+					KP = 1.3634194
+					KV = 0.2240829
+					P0 = -0.105 # theta_ref, not optimized
+				}
+				DofReflex {
+					target = glut_max
+					source = pelvis_tilt
+					delay = $ves_delay 
+					KP = 1.207883
+					#KV = ~0.1<0,10>
+					P0 = -0.105 # theta_ref, not optimized
+				}
+				#DofReflex {
+				#	target = iliopsoas
+				#	source = pelvis_tilt
+				#	delay = $ves_delay 
+				#	KP = ~-0.09<-10,10>
+				#	#KV = ~-0.05<-10,0>
+				#	P0 = -0.105 # theta_ref, not optimized
+				#}
+				DofReflex {
+					target = rect_fem
+					source = pelvis_tilt
+					delay = $ves_delay 
+					KP = -1.1964644
+					KV = 0.064501218
+					P0 = -0.105 # theta_ref, not optimized
+				}
+			}
+		}
+		
+		
+		# Swing reflexes
+		ConditionalController {
+			states = "Liftoff Swing Landing"
+			ReflexController {
+				# hip flexors
+				MuscleReflex {
+					target = iliopsoas
+					delay = $hip_delay
+					KL = 0.79313649
+					L0 = 0.55065365
+				}
+				MuscleReflex {
+					target = rect_fem
+					delay = $ham_delay
+					KL = 0.34190902
+					L0 = 0.6564953
+				}
+				
+				# balance
+				DofReflex {
+					target = iliopsoas
+					source = pelvis_tilt
+					delay = $ves_delay 
+					KP = 1.5579614
+					KV = 0.20296473
+					P0 = -0.105 # theta_ref, not optimized
+				}
+				
+				# antagonists
+				MuscleReflex {
+					target = iliopsoas
+					source = hamstrings
+					delay = $ham_delay
+					KL = -2.5110823
+					L0 = 0.86140247
+				}
+				
+				# posterior muscles
+				MuscleReflex {
+					target = hamstrings
+					delay = $ham_delay
+					KL = 0.14302865
+					L0 = 1.5131143
+				}
+				MuscleReflex {
+					target = bifemsh
+					delay = $knee_delay
+					#KL = ~0.66<0,4>
+					#L0 = ~1.6<0,2>
+					KF = 0.29808523
+				}
+				MuscleReflex {
+					target = glut_max
+					delay = $hip_delay
+					KL = 0.63774939
+					L0 = 0.87829029
+					#KF = ~0.4<-10,10> # 0.4 in paper
+				}
+			}
+		}
+	}
+}

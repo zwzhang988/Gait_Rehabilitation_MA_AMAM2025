@@ -1,0 +1,28 @@
+# Model used in simulation
+ModelHyfydy {
+	model_file = Hy0918v3_motored.hfd
+
+    
+
+	# Set initial state
+	state_init_file = InitStateH0918Gait10ActA_optim2.zml
+	fixed_control_step_size = 0.005
+	initial_load = 1
+	fixed_control_step_size = 0.005
+	use_opensim_activation_dynamics = 1
+	zero_velocity_equilibration = 1
+	
+
+    CompositeController{
+		<< H0918RS2v3_det_optim2.scone >>
+	}
+
+    CompositeMeasure {
+		<< ../measurements/Gait10.scone >>
+		<< ../measurements/EffortWangCubed2000.scone >>
+		<< ../measurements/DofKnee1.scone >>
+		<< ../measurements/Grf14.scone >>
+	}
+    
+    
+}

@@ -1,0 +1,35 @@
+
+		
+		# Model used in simulation
+		ModelHyfydy {
+			model_file = H0914v3_motored.hfd
+			
+			# Override model properties
+			Properties {
+				hamstrings_l { optimal_fiber_length.factor = 0.8 }
+				hamstrings_r { optimal_fiber_length.factor = 0.8 }
+			}
+			
+			# Optimize initial state parameters
+			state_init_file = InitStateGait10_optim2.zml
+			#initial_state_offset =	0~0.01<-0.5,0.5>
+			#initial_state_offset_exclude = "*_tx;*_ty;*_u"
+			fixed_control_step_size = 0.005
+			use_opensim_activation_dynamics = 1
+			zero_velocity_equilibration = 1
+		
+		
+		# Controller for gait, based on [Geyer & Herr 2010]
+		CompositeController{
+			<< ControllerGH2010v12_optim2.scone >>
+		}		
+		
+		# Measure for gait
+		CompositeMeasure {
+		<< ../measurements/Gait10.scone >>
+		<< ../measurements/EffortWangCubed2000.scone >>
+		<< ../measurements/DofKnee1.scone >>
+		<< ../measurements/Grf14.scone >>
+	}
+	}
+
